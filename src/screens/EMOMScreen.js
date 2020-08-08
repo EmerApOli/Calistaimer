@@ -150,7 +150,7 @@ return(
 
 
 EMOMScreen.NavigationStackOptions={
-Header: null
+header :false
 
 }
 
@@ -158,6 +158,6 @@ const styles = StyleSheet.create({
     container:{
         flex:1,
         backgroundColor: '#D6304A',
-        paddingTop: 200
+        paddingTop: 0
     }})
 export default EMOMScreen
