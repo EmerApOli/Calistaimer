@@ -3,7 +3,6 @@ import {View,Text,StyleSheet,TouchableOpacity} from 'react-native'
 import { createStackNavigator,NavigationStackOptions } from 'react-navigation-stack';
 import { Header } from 'react-native/Libraries/NewAppScreen';
 
-
 class Select extends Component {
 
     state={
