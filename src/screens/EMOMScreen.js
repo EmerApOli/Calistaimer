@@ -100,13 +100,24 @@ optSelected:{
 
 })
 
+const Titulo = props =>{
+
+    return(
+        <View style={{paddingTop:20}}>
+            <Text style={{fontFamily:'Ubuntu-Bold',fontSize:20,color:'white',textAlign:'center'}}>EMOM</Text>
+            <Text style={{fontFamily:'Ubuntu-Bold',fontSize:10,color:'white',textAlign:'center'}}> Every Minute On the Minute</Text>
+        </View>
+    )
+
+} 
+
 
 const EMOMScreen= props =>{
 
 return(
 
     <View style= {styles.container}>
-        <Text>EMOM Sreen</Text>
+       <Titulo/>
         <Select label = 'Alertas'
                  current = {0}
                 options={
