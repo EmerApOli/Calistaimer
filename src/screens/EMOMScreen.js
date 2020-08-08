@@ -7,9 +7,16 @@ import { Header } from 'react-native/Libraries/NewAppScreen';
 class Select extends Component {
 
     state={
-     current: 'opt1'
+     current: ''
 
     }
+
+    componentDidMount(){
+    this.setState({
+    current: this.props.current
+    })
+    }
+
     handlePress = opt => ()=>{
         this.setState({
             current: opt
@@ -27,15 +34,30 @@ return(
     <View style={{flexDirection:'row',justifyContent: 'space-around'}}>
 
       {options.map(opt =>{
+           let id=''
+           let label = ''
+           if(typeof opt === 'string'){
+
+              id = opt
+              label = opt
+           }
+            if(typeof opt === 'object'){
+            id = opt.id
+            label = opt.label
+
+
+           }
+       
+  
         return(
 
             <TouchableOpacity  
-            key={opt} 
-            style={[styleSelect.opt, opt === current ? styleSelect.optSelected : null]}
-            onPress = {this.handlePress(opt)}
+            key={id} 
+            style={[styleSelect.opt, id === current ? styleSelect.optSelected : null]}
+            onPress = {this.handlePress(id)}
             >
-           
-           <Text style={styleSelect.optlabel}>{opt}</Text>
+
+           <Text style={styleSelect.optlabel}>{label}</Text>
           </TouchableOpacity>
         )
       })}
@@ -87,10 +109,27 @@ return(
     <View style= {styles.container}>
         <Text>EMOM Sreen</Text>
         <Select label = 'Alertas'
-                options={['desligado','15s', '30s','45s']}
+                 current = {0}
+                options={
+
+                    
+                    
+                    [{id:0,
+                     label:'desligado'}
+                     ,
+                   { id: 15,
+                     label:'15s',
+                   },
+                   {  id: 30,
+                      label:'30s'
+                    },
+                     {id:45,
+                    label:'45s'}]}
+
                 onSelect={opt=> console.log('selecionado',opt)}/>
         <Select label='Contagem Regressiva'
-                options={['sim','não']}
+                current = {0}
+                options={[{id:1,label:'sim'},{id:0, label:'não'}]}
                 onSelect={opt=> console.log('selecionado',opt)}/>
     </View>
 )
