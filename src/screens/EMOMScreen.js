@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import {View,Text,StyleSheet,TouchableOpacity} from 'react-native'
+import {View,Text,StyleSheet, Image,TouchableOpacity} from 'react-native'
 import { createStackNavigator,NavigationStackOptions } from 'react-navigation-stack';
 import { Header } from 'react-native/Libraries/NewAppScreen';
 
@@ -118,6 +118,7 @@ return(
 
     <View style= {styles.container}>
        <Titulo/>
+       <Image source ={ require('../assets/icons8-engrenagem-48.png')}/>       
         <Select label = 'Alertas'
                  current = {0}
                 options={
@@ -141,6 +142,11 @@ return(
                 current = {0}
                 options={[{id:1,label:'sim'},{id:0, label:'não'}]}
                 onSelect={opt=> console.log('selecionado',opt)}/>
+                <Text>Qquantos Minutos</Text>
+                <Text>15</Text>
+                <Text>Minutos</Text>
+                <Text></Text>
+                 <Image source ={ require('../assets/icons8-botão-_play_48.png')}/>  
     </View>
 )
 
