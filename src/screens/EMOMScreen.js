@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
-import {View,Text,StyleSheet, Image,TouchableOpacity} from 'react-native'
+import {View,Text,StyleSheet, Image,TouchableOpacity, KeyboardAvoidingView} from 'react-native'
 import { createStackNavigator,NavigationStackOptions } from 'react-navigation-stack';
 import { Header } from 'react-native/Libraries/NewAppScreen';
+import { TextInput } from 'react-native-gesture-handler';
 
 class Select extends Component {
 
@@ -115,10 +116,10 @@ const Titulo = props =>{
 const EMOMScreen= props =>{
 
 return(
-
+   <KeyboardAvoidingView style={{flex:1}} behavior = 'padding'>
     <View style= {styles.container}>
        <Titulo/>
-       <Image source ={ require('../assets/icons8-engrenagem-48.png')}/>       
+       <Image style ={{alignSelf: 'center',marginBottom: 17}} source ={ require('../assets/icons8-engrenagem-48.png')}/>       
         <Select label = 'Alertas'
                  current = {0}
                 options={
@@ -142,12 +143,14 @@ return(
                 current = {0}
                 options={[{id:1,label:'sim'},{id:0, label:'não'}]}
                 onSelect={opt=> console.log('selecionado',opt)}/>
-                <Text>Qquantos Minutos</Text>
-                <Text>15</Text>
-                <Text>Minutos</Text>
+                <Text    style={styles.label}>Qquantos Minutos</Text>
+                < TextInput style ={styles.input}keyboardType='numeric'value='15'/>
+                <Text style={styles.label}>Minutos</Text>
                 <Text></Text>
-                 <Image source ={ require('../assets/icons8-botão-_play_48.png')}/>  
+                 <Image style ={{alignSelf: 'center'}} source ={ require('../assets/icons8-botão-_play_48.png')}/>
+                 <Text>Testar</Text>
     </View>
+    </KeyboardAvoidingView>
 )
 
 }
@@ -164,6 +167,26 @@ const styles = StyleSheet.create({
     container:{
         flex:1,
         backgroundColor: '#D6304A',
-        paddingTop: 0
-    }})
+        paddingTop: 24
+    },
+        label:{
+        
+        textAlign:'center',
+        color: 'white',
+        fontFamily:'Ubuntu-Regular',
+        fontSize: 10
+        },
+        input:{
+        
+            textAlign:'center',
+            color: 'black',
+            fontFamily:'Ubuntu-Regular',
+            fontSize: 48
+            }
+
+
+})
+
+
+
 export default EMOMScreen
