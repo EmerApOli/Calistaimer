@@ -21,8 +21,9 @@ return(
 
 }
 HomeScreen.NavigationStackOptions ={
-Header: null
+header: null
 }
+
 
 
 
