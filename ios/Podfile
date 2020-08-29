@@ -10,6 +10,8 @@ target 'Calistaimer' do
 
   pod 'RNGestureHandler', :path => '../node_modules/react-native-gesture-handler'
 
+  pod 'RNSound', :path => '../node_modules/react-native-sound'
+
   target 'CalistaimerTests' do
     inherit! :complete
     # Pods for testing

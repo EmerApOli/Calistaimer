@@ -1,9 +1,11 @@
 import React, { Component } from 'react'
-import { keyboard, View, Text, StyleSheet, Image, TouchableOpacity, KeyboardAvoidingView, Keyboard } from 'react-native'
+import { Animated,keyboard, View, Text, StyleSheet, Image, TouchableOpacity, KeyboardAvoidingView, Keyboard } from 'react-native'
 import { createStackNavigator, NavigationStackOptions } from 'react-navigation-stack';
 import { Header } from 'react-native/Libraries/NewAppScreen';
 import { TextInput, ScrollView } from 'react-native-gesture-handler';
+import Sound from 'react-native-sound';
 
+const alert =  require('../sounds/alert.wav')
 class Select extends Component {
 
     state = {
@@ -12,12 +14,40 @@ class Select extends Component {
     }
 
     componentDidMount() {
+      
+
         this.setState({
             current: this.props.current
         })
     }
 
     handlePress = opt => () => {
+        const {current} = this.state
+        if(Array.isArray(current)){
+          
+            let newCurrent = current
+            const i =  current.indexOf(opt)
+            if(i>=0){
+                newCurrent =[...newCurrent]              
+                 newCurrent.splice(i,1)
+                
+            }
+            else{
+             newCurrent = [...current,opt]
+
+
+            }
+            this.setState({
+              current: newCurrent   
+            })
+
+            if (this.props.onSelect) {
+
+               this.props.onSelect(newCurrent)
+            }
+
+        } else{
+
         this.setState({
             current: opt
         })
@@ -26,8 +56,18 @@ class Select extends Component {
             this.props.onSelect(opt)
         }
     }
-    render() {
+}
+     checkItem =item =>{
+         const{current} = this.state
+         if(Array.isArray(current)){
+             return current.indexOf(item)>= 0
+         }
+          return current === item
+     }
 
+
+    render() {
+              
         const { options, label } = this.props
         const { current } = this.state
         return (
@@ -49,12 +89,12 @@ class Select extends Component {
 
                         }
 
-
+                       this.checkItem(id)
                         return (
 
                             <TouchableOpacity
                                 key={id}
-                                style={[styleSelect.opt, id === current ? styleSelect.optSelected : null]}
+                                style={[this.checkItem(id) === current ? styleSelect.optSelected : null]}
                                 onPress={this.handlePress(id)}
                             >
 
@@ -114,30 +154,84 @@ const Timer = props => {
         return num
     }
     return (
-        <Text>{format(minutes)}:{format(seconds)}</Text>
+        <Text style ={styleTimer[props.type ? props.type:'text']}>{format(minutes)}:{format(seconds)}{props.appendText}</Text>
     )
 
 }
-const style = StyleSheet.create({
+const styleTimer = StyleSheet.create({
+  text:{
+     fontFamily: 'Ubuntu-Bold',
+     fontSize :60,
+     color: 'white',
+     textAlign: 'center'
+  },
+  text2:{
+    fontFamily: 'Ubuntu-Regular',
+    fontSize :30,
+    color: 'white',
+    textAlign: 'center'
+ }
 
 
+
+   
 
 })
 
 
-const Progressbar =props => {
-const{color,percentage,height}= props
+class Progressbar extends Component {
+constructor(props){
+ super(props)
+ this.width= new Animated.value(0)
+}
+
+componentDidUpdate(preProps){
+ if(preProps.percentage !== this.props.percentage){
+     Animated.timing(this.width,{
+         toValue: this.props.percentage,
+         duration:500
+     }).start()
+ }
+
+}
+ render(){
+const{color,percentage,height}= this.props
+const w = this.width.interpolate({
+    inputRange:[0,100],
+    outputrange:['0%','100%']
+})
 return(
  <View>
-<View style = {{  width: percentage ? percentage: '1%',
+<View style = {{  
+    width:w,
     backgroundColor:color ? color: 'white',
     height: height ? height : 3 }} />
      </View>
  
 
 )
+}}
+
+const BackgroundProgress = props =>{
+return(
+<View style={{flex:1 }}>
+    <View style={{flex:1 }}>
+     <View style={{flex: 1-(props.percentage/100), backgroundColor:'#D6304A'}}/>
+     <View style={{flex:(props.percentage/100), backgroundColor:'#2A0E12'}}/>
+    </View>
+   <View style ={{position:'absolute',left : 0, top: 0, bottom: 0 ,right: 0 }}>
+    {props.children}
+   </View>
+
+</View>
+)
 
 }
+
+
+
+
+
 
 
 
@@ -162,9 +256,9 @@ class EMOMScreen extends Component {
     state = {
         keyboardIsVisible: false,
 
-        alerts: 0,
+        alerts: [0,15],
         countdown: 1,
-        time: '1',
+        time: '2',
         isRunning: false,
         countdownValue: 5,
         count: 0
@@ -172,9 +266,9 @@ class EMOMScreen extends Component {
     }
 
     componentDidMount() {
-        /// this.KbShow = keyboard.addListener('KeyBoardDidShow', ()=>{ 
-        //    this.setState({keyboardIsVisible : true})
-        //})
+        
+        Sound.setCategory('Playback',true)
+        this.alert = new Sound(alert)
 
         this.KbShow = Keyboard.addListener('KeyBoardDidShow', () => {
             this.setState({ keyboardIsVisible: true })
@@ -182,7 +276,7 @@ class EMOMScreen extends Component {
         this.KbHide = Keyboard.addListener('KeyBoardDidHide', () => {
             this.setState({ keyboardIsVisible: false })
         })
-        this.play()
+        //this.play()
         // this.KbHide = keyboard.addListener('KeyBoardDidHide',()=>{
         //  this.setState({keyboardIsVisible : false})
 
@@ -196,10 +290,21 @@ class EMOMScreen extends Component {
 
     }
 
+    playAlert =() =>{
+   const resto = this.state.count % 60
+   if(this.state.alerts.indexOf(resto)>= 0){
+   this.alert.play()
+    }
+    if(this.state.countdown===1){
+        if(resto>=55 && resto<60){
+           this.alert.play()
+        }
+    }}
     play = () => {
         this.setState({ isRunning: true })
         const count = () => {
             this.setState({ count: this.state.count + 1 }, () => {
+                 this.playAlert()
                 if (this.state.count === parseInt(this.state.time) * 60) { clearInterval(this.countTimer) }
 
             })
@@ -208,12 +313,13 @@ class EMOMScreen extends Component {
         }
         //checar countdaow
         if (this.state.countdown === 1) {
+            this.alert.play()
             this.countdownTimer = setInterval(() => {
-
+                this.alert.play()
                 this.setState({ countdownValue: this.state.countdownValue - 1 }, () => {
                     if (this.state.countdownValue === 0) {
                         clearInterval(this.countdownTimer)
-                        this.countTimer = setInterval(count, 100);
+                        this.countTimer = setInterval(count, 1000);
                     }
 
                 }
@@ -234,22 +340,25 @@ class EMOMScreen extends Component {
 
         if (this.state.isRunning) {
 
-            const percMinute =(this.state.count % 60) / 60
-            const percTime = (this.state.count / 60) / parseInt(this.state.time)
+            const percMinute =parseInt(((this.state.count % 60) / 60) *100)
+            const percTime = parseInt(((this.state.count / 60) / parseInt(this.state.time)) * 100)
               
 
 
             return (
-
-                <View style={[styles.container, { justifyContent: 'center' }]}>
-                    <Text> Running : {this.state.countdownValue}    </Text>
-                    <Text> Count : {this.state.count}    </Text>
+                <BackgroundProgress percentage ={percMinute}>
+                <View style={{flex: 1,  justifyContent: 'center' }}>
+                    <Text> Running : {this.state.countdownValue}  </Text>
+                    <Text> Count : {this.state.count}  </Text>
                     <Timer time={this.state.count} />
+                    <Progressbar  percentage={percTime}/>
+                    <Timer time={parseInt(this.state.time)*60 -this.state.count}type = 'text2' appendText = ' Restantes'/>
                     <Text>Minutes:{percMinute}</Text>
-                    <Text>Time:{percTime}</Text>
-                    <Progressbar />
+                    <Text>{percTime}</Text>
+              
                 </View>
-
+                </BackgroundProgress>
+                
             )
 
 
@@ -272,7 +381,7 @@ class EMOMScreen extends Component {
 
                             [{
                                 id: 0,
-                                label: 'desligado'
+                                label: '0s'
                             }
                                 ,
                             {
