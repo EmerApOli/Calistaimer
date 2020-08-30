@@ -1,11 +1,18 @@
 import React, { Component } from 'react'
-import { Animated,keyboard, View, Text, StyleSheet, Image, TouchableOpacity, KeyboardAvoidingView, Keyboard } from 'react-native'
+import { Animated, keyboard, View, Text, StyleSheet, Image, TouchableOpacity, KeyboardAvoidingView, Keyboard } from 'react-native'
 import { createStackNavigator, NavigationStackOptions } from 'react-navigation-stack';
 import { Header } from 'react-native/Libraries/NewAppScreen';
 import { TextInput, ScrollView } from 'react-native-gesture-handler';
 import Sound from 'react-native-sound';
+import { YellowBox } from 'react-native';
 
-const alert =  require('../sounds/alert.wav')
+YellowBox.ignoreWarnings([
+    'Animated: `useNativeDriver` was not specified.',
+  ])
+
+
+
+const alert = require('../sounds/alert.wav')
 class Select extends Component {
 
     state = {
@@ -14,7 +21,7 @@ class Select extends Component {
     }
 
     componentDidMount() {
-      
+
 
         this.setState({
             current: this.props.current
@@ -22,52 +29,52 @@ class Select extends Component {
     }
 
     handlePress = opt => () => {
-        const {current} = this.state
-        if(Array.isArray(current)){
-          
+        const { current } = this.state
+        if (Array.isArray(current)) {
+
             let newCurrent = current
-            const i =  current.indexOf(opt)
-            if(i>=0){
-                newCurrent =[...newCurrent]              
-                 newCurrent.splice(i,1)
-                
+            const i = current.indexOf(opt)
+            if (i >= 0) {
+                newCurrent = [...newCurrent]
+                newCurrent.splice(i, 1)
+
             }
-            else{
-             newCurrent = [...current,opt]
+            else {
+                newCurrent = [...current, opt]
 
 
             }
             this.setState({
-              current: newCurrent   
+                current: newCurrent
             })
 
             if (this.props.onSelect) {
 
-               this.props.onSelect(newCurrent)
+                this.props.onSelect(newCurrent)
             }
 
-        } else{
+        } else {
 
-        this.setState({
-            current: opt
-        })
-        if (this.props.onSelect) {
+            this.setState({
+                current: opt
+            })
+            if (this.props.onSelect) {
 
-            this.props.onSelect(opt)
+                this.props.onSelect(opt)
+            }
         }
     }
-}
-     checkItem =item =>{
-         const{current} = this.state
-         if(Array.isArray(current)){
-             return current.indexOf(item)>= 0
-         }
-          return current === item
-     }
+    checkItem = item => {
+        const { current } = this.state
+        if (Array.isArray(current)) {
+            return current.indexOf(item) >= 0
+        }
+        return current === item
+    }
 
 
     render() {
-              
+
         const { options, label } = this.props
         const { current } = this.state
         return (
@@ -89,7 +96,7 @@ class Select extends Component {
 
                         }
 
-                       this.checkItem(id)
+                        this.checkItem(id)
                         return (
 
                             <TouchableOpacity
@@ -137,7 +144,7 @@ const styleSelect = StyleSheet.create({
         backgroundColor: 'rgba(255,255,255,0.6)'
 
     }
-
+   
 
 
 })
@@ -154,87 +161,105 @@ const Timer = props => {
         return num
     }
     return (
-        <Text style ={styleTimer[props.type ? props.type:'text']}>{format(minutes)}:{format(seconds)}{props.appendText}</Text>
+        <Text style={styleTimer[props.type ? props.type : 'text']}>{format(minutes)}:{format(seconds)}{props.appendText}</Text>
     )
 
 }
 const styleTimer = StyleSheet.create({
-  text:{
-     fontFamily: 'Ubuntu-Bold',
-     fontSize :60,
-     color: 'white',
-     textAlign: 'center'
-  },
-  text2:{
-    fontFamily: 'Ubuntu-Regular',
-    fontSize :30,
-    color: 'white',
-    textAlign: 'center'
- }
+    text: {
+        fontFamily: 'Ubuntu-Bold',
+        fontSize: 60,
+        color: 'white',
+        textAlign: 'center'
+    },
+    text2: {
+        fontFamily: 'Ubuntu-Regular',
+        fontSize: 30,
+        color: 'white',
+        textAlign: 'center'
+    }
 
 
 
-   
+
 
 })
 
 
 class Progressbar extends Component {
-constructor(props){
- super(props)
- this.width= new Animated.value(0)
+   constructor(props) {
+        super(props)
+        this.width = new Animated.Value(0)
+    }
+
+    componentDidUpdate(prevProps) {
+        if (prevProps.percentage !== this.props.percentage) {
+            Animated.timing(this.width, {
+                toValue: this.props.percentage,
+                duration: 500
+            }).start()
+        }
+
+    }
+    render() {
+        const { color,percentage, height } = this.props
+        const w = this.width.interpolate({
+            inputRange: [0, 100],
+            outputRange: ['0%', '100%']
+        })
+        return (
+            <View>
+                <Animated.View style={{
+                    width: w,
+                    backgroundColor: color ? color : 'white',
+                    height: height ? height : 3
+                }} />
+            </View>
+
+
+        )
+    }
 }
 
-componentDidUpdate(preProps){
- if(preProps.percentage !== this.props.percentage){
-     Animated.timing(this.width,{
-         toValue: this.props.percentage,
-         duration:500
-     }).start()
- }
+class BackgroundProgress extends Component {
 
+    constructor(props) {
+        super(props)
+        this.height = new Animated.Value(0)
+    }
+    componentDidUpdate(prevProps) {
+        if (prevProps.percentage !== this.props.percentage) {
+            Animated.timing(this.height, {
+                toValue: this.props.percentage,
+                duration: 500
+            }).start()
+        }
+
+    }
+    render(){
+        const{children,percentage}= this.props
+        const h = this.height.interpolate({
+            inputRange: [0, 100],
+            outputRange: ['0%', '100%']
+        })
+        const h2 = this.height.interpolate({
+            inputRange: [0, 100],
+            outputRange: ['100%', '0%']
+        })
+    return (
+        <View style={{ flex: 1 }}>
+            <View style={{ flex: 1 }}>
+                <Animated.View style={{ height: h2 , backgroundColor: '#D6304A' }} />
+                <Animated.View style={{ height: h, backgroundColor: '#2A0E12' }} />
+            </View>
+            <View style={{ position: 'absolute', left: 0, top: 0, bottom: 0, right: 0 }}>
+                {children}
+            </View>
+
+        </View>
+    )
+    }
 }
- render(){
-const{color,percentage,height}= this.props
-const w = this.width.interpolate({
-    inputRange:[0,100],
-    outputrange:['0%','100%']
-})
-return(
- <View>
-<View style = {{  
-    width:w,
-    backgroundColor:color ? color: 'white',
-    height: height ? height : 3 }} />
-     </View>
- 
-
-)
-}}
-
-const BackgroundProgress = props =>{
-return(
-<View style={{flex:1 }}>
-    <View style={{flex:1 }}>
-     <View style={{flex: 1-(props.percentage/100), backgroundColor:'#D6304A'}}/>
-     <View style={{flex:(props.percentage/100), backgroundColor:'#2A0E12'}}/>
-    </View>
-   <View style ={{position:'absolute',left : 0, top: 0, bottom: 0 ,right: 0 }}>
-    {props.children}
-   </View>
-
-</View>
-)
-
-}
-
-
-
-
-
-
-
-
 
 
 
@@ -252,22 +277,22 @@ const Titulo = props => {
 
 
 class EMOMScreen extends Component {
-    
+
     state = {
         keyboardIsVisible: false,
 
-        alerts: [0,15],
+        alerts: [0, 15],
         countdown: 1,
         time: '2',
         isRunning: false,
-        countdownValue: 5,
+        countdownValue:  0,
         count: 0
 
     }
 
     componentDidMount() {
-        
-        Sound.setCategory('Playback',true)
+
+        Sound.setCategory('Playback', true)
         this.alert = new Sound(alert)
 
         this.KbShow = Keyboard.addListener('KeyBoardDidShow', () => {
@@ -282,7 +307,7 @@ class EMOMScreen extends Component {
 
         // })
     }
-    
+
 
     componentWillUnmont() {
         this.KbShow.remove()
@@ -290,21 +315,36 @@ class EMOMScreen extends Component {
 
     }
 
-    playAlert =() =>{
-   const resto = this.state.count % 60
-   if(this.state.alerts.indexOf(resto)>= 0){
-   this.alert.play()
-    }
-    if(this.state.countdown===1){
-        if(resto>=55 && resto<60){
-           this.alert.play()
+    playAlert = () => {
+        const resto = this.state.count % 60
+        if (this.state.alerts.indexOf(resto) >= 0) {
+            this.alert.play()
         }
-    }}
+        if (this.state.countdown === 1) {
+            if (resto >= 55 && resto < 60) {
+                this.alert.play()
+            }
+        }
+    }
+ 
+
+    stop =()=>{
+        clearInterval(this.countdownTimer)
+        clearInterval(this.countTimer)
+           this.setState({
+            isRunning:false
+        })
+    }
     play = () => {
+        this.setState({
+            count:0,
+            countdownValue:  this.state.countdown === 1 ? 5:0
+
+        })
         this.setState({ isRunning: true })
         const count = () => {
             this.setState({ count: this.state.count + 1 }, () => {
-                 this.playAlert()
+                this.playAlert()
                 if (this.state.count === parseInt(this.state.time) * 60) { clearInterval(this.countTimer) }
 
             })
@@ -340,25 +380,33 @@ class EMOMScreen extends Component {
 
         if (this.state.isRunning) {
 
-            const percMinute =parseInt(((this.state.count % 60) / 60) *100)
+            const percMinute = parseInt(((this.state.count % 60) / 60) * 100)
             const percTime = parseInt(((this.state.count / 60) / parseInt(this.state.time)) * 100)
-              
+
 
 
             return (
-                <BackgroundProgress percentage ={percMinute}>
-                <View style={{flex: 1,  justifyContent: 'center' }}>
-                    <Text> Running : {this.state.countdownValue}  </Text>
-                    <Text> Count : {this.state.count}  </Text>
-                    <Timer time={this.state.count} />
-                    <Progressbar  percentage={percTime}/>
-                    <Timer time={parseInt(this.state.time)*60 -this.state.count}type = 'text2' appendText = ' Restantes'/>
-                    <Text>Minutes:{percMinute}</Text>
-                    <Text>{percTime}</Text>
-              
-                </View>
+                <BackgroundProgress percentage={percMinute}>
+                    <View style={{ flex: 1, justifyContent: 'center' }}>
+                      <View style={{flex:1, backgroundColor:'red'}}>
+                      <Titulo title='EMOM' subtitle='Ever Minute is Minute'/>
+                      </View>
+                       <View  style={{ flex: 1}}>
+                         <Timer time={this.state.count} />
+                        <Progressbar percentage={percTime} />
+                        <Timer time={parseInt(this.state.time) * 60 - this.state.count} type='text2' appendText=' Restantes' />
+                        </View>
+                        <View style={{flex:1, justifyContent:'flex-end'}}>
+                            {this.state.countdownValue > 0 ?
+                        <Text style={styles.countdown}>{this.state.countdownValue} </Text>
+                           :null }
+                             <TouchableOpacity style={{ alignSelf: 'center', marginBottom:20}} onPress={this.stop}>
+                        <Image style={{ alignSelf: 'center' }} source={require('../assets/icons8-botão-_play_48.png')} />
+                         </TouchableOpacity>
+                        </View>
+                    </View>
                 </BackgroundProgress>
-                
+
             )
 
 
@@ -457,7 +505,13 @@ const styles = StyleSheet.create({
         fontFamily: 'Ubuntu-Bold',
         fontSize: 20
 
-    }
+    },
+    countdown:{
+        fontFamily: 'Ubuntu-Bold',
+        fontSize: 144,
+        color: 'white',
+        textAlign: 'center',
+       }
 
 
 })
