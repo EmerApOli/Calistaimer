@@ -1,6 +1,6 @@
 import React from 'react'
 import {View,Text, TouchableOpacity, StyleSheet} from 'react-native'
-import { createStackNavigator,NavigationStackOptions } from 'react-navigation-stack';
+import { createStackNavigator,Nav } from 'react-navigation-stack';
 import { createAppContainer} from 'react-navigation';
 
 import Button from '../components/Button'
@@ -13,7 +13,7 @@ return(
          <Text style= {styles.logo}>Calistimer</Text>
           <Button style={styles.btn} onPress={()=> props.navigation.navigate('EMOM')}>Emom</Button>
           <Button style={styles.btn} onPress={()=> props.navigation.navigate('EMOM')}>ARMAP</Button>
-          <Button style={styles.btn} onPress={()=> props.navigation.navigate('EMOM')}>Isometria</Button>
+          <Button style={styles.btn} onPress={()=> props.navigation.navigate('Isometria')}>Isometria</Button>
    
    
     </View>

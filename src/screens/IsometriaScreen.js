@@ -230,7 +230,7 @@ class BackgroundProgress extends Component {
     componentDidUpdate(prevProps) {
         if (prevProps.percentage !== this.props.percentage) {
             Animated.timing(this.height, {
-                toValue: this.props.percentage,
+                toValue: this.props.percentage > 100 ? 100 : this.props.percentage,
                 duration: 500
             }).start()
         }
@@ -276,16 +276,18 @@ const Titulo = props => {
 }
 
 
-class EMOMScreen extends Component {
+class IsometriaSreen extends Component {
 
     state = {
         keyboardIsVisible: false,
 
-        alerts: [0, 15],
+        goal: 1,
         countdown: 1,
-        time: '2',
+        time: '20',
+
         isRunning: false,
         countdownValue:  0,
+        paused: false,
         count: 0
 
     }
@@ -301,7 +303,7 @@ class EMOMScreen extends Component {
         this.KbHide = Keyboard.addListener('KeyBoardDidHide', () => {
             this.setState({ keyboardIsVisible: false })
         })
-        //this.play()
+       // this.play()
         // this.KbHide = keyboard.addListener('KeyBoardDidHide',()=>{
         //  this.setState({keyboardIsVisible : false})
 
@@ -316,45 +318,67 @@ class EMOMScreen extends Component {
     }
 
     playAlert = () => {
-        const resto = this.state.count % 60
-        if (this.state.alerts.indexOf(resto) >= 0) {
-            this.alert.play()
-        }
-        if (this.state.countdown === 1) {
-            if (resto >= 55 && resto < 60) {
+            const resto = 0
+            const{count,time} = this.state
+            if (count >=parseInt(time)-5 &&  count <= parseInt(time)) {
                 this.alert.play()
             }
         }
-    }
+    
  
+         restart =()=>{
+             if(this.state.paused){
+            clearInterval(this.countTimer)
+            clearInterval(this.countdownTimer)
+            this.play()
+             }
+             }
+         
 
     stop =()=>{
-        clearInterval(this.countdownTimer)
-        clearInterval(this.countTimer)
+     // clearInterval(this.countdownTimer)
+       // clearInterval(this.countTimer)
            this.setState({
-            isRunning:false
-        })
+            paused: !this.state.paused
+        }) 
     }
+
+
+    /*back = ()=>{
+        if(this.state.paused|| ! this.state.isRunning){
+                clearInterval(this.countTimer)
+                   clearInterval(this.countdownTimer)
+              this.props.NavigationStackOptions.goback()
+
+    }} */
     play = () => {
+        const time = this.state.goal === 0 ?'0' : this.state.time
         this.setState({
             count:0,
-            countdownValue:  this.state.countdown === 1 ? 5:0
+            countdownValue:  5,
+            paused: false,
+            time
 
         })
         this.setState({ isRunning: true })
         const count = () => {
+            if (this.state.paused){
+             return;
+        }  
             this.setState({ count: this.state.count + 1 }, () => {
                 this.playAlert()
-                if (this.state.count === parseInt(this.state.time) * 60) { clearInterval(this.countTimer) }
+               // if (this.state.count === parseInt(this.state.time)) { clearInterval(this.countTimer) }
 
             })
 
 
         }
         //checar countdaow
-        if (this.state.countdown === 1) {
+     
             this.alert.play()
             this.countdownTimer = setInterval(() => {
+                if (this.state.paused){
+                    return;}
                 this.alert.play()
                 this.setState({ countdownValue: this.state.countdownValue - 1 }, () => {
                     if (this.state.countdownValue === 0) {
@@ -367,9 +391,7 @@ class EMOMScreen extends Component {
 
                 )
             }, 1000)
-        } else {
-            this.countTimer = setInterval(count, 100)
-        }
+     
     }
     //começar a contar
     //checar terminou
@@ -380,28 +402,42 @@ class EMOMScreen extends Component {
 
         if (this.state.isRunning) {
 
-            const percMinute = parseInt(((this.state.count % 60) / 60) * 100)
-            const percTime = parseInt(((this.state.count / 60) / parseInt(this.state.time)) * 100)
-
-
-
+          
+            const percMinute = this.state.time === '0' ? 0 : parseInt(((this.state.count) / parseInt(this.state.time)) * 100)
+            const restante = parseInt(this.state.time)>= this.state.count  ? parseInt( this.state.time) - this.state.count :0
+            const opacity = !this.state.paused ? 0.6 : 1
+   
             return (
                 <BackgroundProgress percentage={percMinute}>
                     <View style={{ flex: 1, justifyContent: 'center' }}>
                       <View style={{flex:1, backgroundColor:'red'}}>
-                      <Titulo title='EMOM' subtitle='Ever Minute is Minute'/>
+                      <Titulo title='Isometria' style ={{ paddingTop: this.state.keyboardIsVisible ? 20 :100}}/>
                       </View>
-                       <View  style={{ flex: 1}}>
+                       <View  style={{ flex: 1,justifyContent: 'center'}}>
                          <Timer time={this.state.count} />
-                        <Progressbar percentage={percTime} />
-                        <Timer time={parseInt(this.state.time) * 60 - this.state.count} type='text2' appendText=' Restantes' />
-                        </View>
-                        <View style={{flex:1, justifyContent:'flex-end'}}>
-                            {this.state.countdownValue > 0 ?
+                         {
+                            this.state.goal === 1 ? <Timer time ={restante} type ='text2' appendText={'restantes'}/> : null
+                         }
+                                        
+                         </View>
+                         {this.state.countdownValue > 0 ?
                         <Text style={styles.countdown}>{this.state.countdownValue} </Text>
                            :null }
-                             <TouchableOpacity style={{ alignSelf: 'center', marginBottom:20}} onPress={this.stop}>
+                        <View style={ {flexDirection:'row', justifyContent:"space-between",  marginBottom:20}}>
+                          
+                        <TouchableOpacity style={{ alignSelf: 'center'}} onPress={this.back}>
+                        <Image  style={{ opacity}} source={require('../assets/icons8-seta-responder-48.png')} />
+                         </TouchableOpacity>
+                         <TouchableOpacity style={{ alignSelf: 'center'}} onPress={this.stop}>
+                           { this.state.paused ?
                         <Image style={{ alignSelf: 'center' }} source={require('../assets/icons8-botão-_play_48.png')} />
+                          :
+                          <Image style={{ alignSelf: 'center' }} source={require('../assets/icons8-parar-48.png')} />
+                          }
+                         </TouchableOpacity>
+                         
+                         <TouchableOpacity style={{ alignSelf: 'center'}} onPress={this.restart}>
+                        <Image style={{ opacity}} source={require('../assets/icons8-actualizar-48.png')} />
                          </TouchableOpacity>
                         </View>
                     </View>
@@ -417,50 +453,42 @@ class EMOMScreen extends Component {
         return (
             <KeyboardAvoidingView style={{ flex: 1 }} behavior='padding'>
                 <ScrollView style={styles.container}>
-                    <Titulo title='EMOM' subtitle='Ever Minute is Minute'
+                    <Titulo title='Isometria' subtitle='Ever Minute is Minute'
                         style={{ paddingTop: this.state.keyboardIsVisible ? 20 : 200 }}
                     />
                     <Image style={{ alignSelf: 'center', marginBottom: 17 }} source={require('../assets/icons8-engrenagem-48.png')} />
-                    <Select label='Alertas'
-                        current={this.state.alerts}
+                    <Select label='objetivo:'
+                        current={this.state.goal}
                         options={
 
 
 
                             [{
                                 id: 0,
-                                label: '0s'
+                                label: 'livre'
                             }
                                 ,
                             {
-                                id: 15,
-                                label: '15s',
-                            },
-                            {
-                                id: 30,
-                                label: '30s'
-                            },
-                            {
-                                id: 45,
-                                label: '45s'
-                            }]}
+                                id: 1,
+                                label: 'Bater tempo',
+                            }
+                            ]}
 
-                        onSelect={opt => this.setState({ alert: opt })} />
-                    <Select label='Contagem Regressiva'
-                        current={this.state.countdown}
-                        options={[{ id: 1, label: 'sim' }, { id: 0, label: 'não' }]}
-                        onSelect={opt => this.setState({ countdown: opt })} />
-                    <Text style={styles.label}>Qquantos Minutos</Text>
+                        onSelect={opt => this.setState({ goal: opt })} />
+                        {this.state.goal!== 0 ?
+                    <React.Fragment>
+                    <Text style={styles.label}>Qquantos Segundos:</Text>
                     < TextInput style={styles.input} keyboardType='numeric' value={this.state.time} onChangeText={text => this.setState({ time: text })} />
-                    <Text style={styles.label}>Minutos</Text>
-                    <View style={ {flexDirection:'row', justifyContent:"space-between",  marginBottom:20}}> 
-                    <TouchableOpacity style={{ alignSelf: 'center'}} onPress={this.back}>
-                        <Image  style={{}} source={require('../assets/icons8-seta-responder-48.png')} />
-                     </TouchableOpacity>  
+                    </React.Fragment>
+                    : null
+                    }
+                    <View style={ {flexDirection:'row', justifyContent:"space-between",  marginBottom:20}}>
+                    <TouchableOpacity style={{ alignSelf: 'center'}} >
+                        <Image source={require('../assets/icons8-seta-responder-48.png')} />
+                         </TouchableOpacity>
                     <TouchableOpacity style={{ alignSelf: 'center' }} onPress={this.play}>
                         <Image style={{ alignSelf: 'center' }} source={require('../assets/icons8-botão-_play_48.png')} />
                     </TouchableOpacity>
-                 
                     </View>
                     <Text>Testar</Text>
                 </ScrollView>
@@ -472,8 +500,7 @@ class EMOMScreen extends Component {
 
 
 
-
-EMOMScreen.NavigationStackOptions = {
+IsometriaSreen.NavigationStackOptions = {
     headerTransparent: true
 
 }
@@ -524,4 +551,4 @@ const styles = StyleSheet.create({
 
 
 
-export default EMOMScreen
+export default IsometriaSreen

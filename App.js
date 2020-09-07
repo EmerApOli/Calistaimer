@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import HomeScreen from './src/screens/HomeScreen';
 import EMOMScreen  from './src/screens/EMOMScreen';
+import IsometriaScreen from './src/screens/IsometriaScreen';
 import {
   Header,
   LearnMoreLinks,
@@ -22,14 +23,16 @@ import {
 } from 'react-native/Libraries/NewAppScreen';
 import { createStackNavigator } from 'react-navigation-stack';
 import { createAppContainer} from 'react-navigation';
+import IsometriaSreen from './src/screens/IsometriaScreen';
 
 
 const AppNavigator = createStackNavigator({
 
 Home:HomeScreen,
-EMOM:EMOMScreen
+EMOM:EMOMScreen,
+Isometria: IsometriaScreen
 
-},{initialRouteName:'EMOM'})
+},{initialRouteName:'Home'})
 
 
 
